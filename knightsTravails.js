@@ -1,23 +1,32 @@
-let target = [4, 4];
-
-function getPaths(position, nextMoves = []) {
+function knightMoves(start, end) {
+  let allPaths = getPaths(start);
+  let shortestPath = 1000;
+  let paths = getCorrectPaths(allPaths, end);
+  // for each path
+  paths.forEach((path) => {
+    if (path.length < shortestPath) {
+      shortestPath = path.length;
+    }
+  });
+  for (let i = 0; i < paths.length; i++) {
+    if (paths[i].length == shortestPath) {
+      return paths[i];
+    }
+  }
+}
+function getPaths(position, level = 0) {
   // Base case
-  if (areEqual(position, target)) return;
-
+  if (level == 6) return [position, [null]];
   // Push all possible next moves into the current position's nextMoves array
-  nextMoves = [position, []];
+  let nextMoves = [position, []];
   nextMoves[1].push([position[0] + 2, position[1] + 1]);
   nextMoves[1].push([position[0] + 2, position[1] - 1]);
-
   nextMoves[1].push([position[0] - 2, position[1] + 1]);
   nextMoves[1].push([position[0] - 2, position[1] - 1]);
-
   nextMoves[1].push([position[0] + 1, position[1] + 2]);
   nextMoves[1].push([position[0] + 1, position[1] - 2]);
-
   nextMoves[1].push([position[0] - 1, position[1] + 2]);
   nextMoves[1].push([position[0] - 1, position[1] - 2]);
-
   // Recursively do the same for all the possible next moves
   for (let i = 0; i < nextMoves[1].length; i++) {
     let move = nextMoves[1][i];
@@ -27,12 +36,65 @@ function getPaths(position, nextMoves = []) {
       nextMoves[1].splice(moveIndex, 1);
       // Stay on the current index after removing
       i--;
-    } else getPaths(move, nextMoves);
+    } else nextMoves[1][i] = getPaths(move, level + 1);
   }
   return nextMoves;
 }
 
-function areEqual(arr1, arr2) {
-  return JSON.stringify(arr1) === JSON.stringify(arr2);
+function getCorrectPaths(point, target) {
+  // Base case
+  if (point == null) return null;
+  if (compareArrays(point[0], target)) return point[0];
+  let currPoint = point[0];
+  let nextMoves = point[1];
+  let paths = [];
+  if (point[1][0] !== null) {
+    nextMoves.forEach((move) => {
+      let nextMove = move[0];
+      let localPaths = getCorrectPaths(move, target);
+      if (localPaths.length !== 0) {
+        if (localPaths !== null) {
+          if (typeof localPaths[0] !== "object") {
+            if (paths.length == 0) {
+              let arr = [];
+              arr.push(currPoint);
+              arr.push(localPaths);
+              paths.push(arr);
+            } else {
+              let arr = [];
+              arr.push(currPoint);
+              arr.push(localPaths);
+              paths.push(arr);
+            }
+          } else if (typeof localPaths[0][0] == "object") {
+            let arr = [];
+            localPaths.forEach((path) => {
+              let locArr = [];
+              locArr.push(currPoint);
+              path.forEach((item) => {
+                locArr.push(item);
+              });
+              arr.push(locArr);
+            });
+            arr.forEach((item) => paths.push(item));
+          } else {
+            let arr = [];
+            arr.push(currPoint);
+            localPaths.forEach((path) => {
+              arr.push(path);
+            });
+            paths.push(arr);
+          }
+        }
+      }
+    });
+  }
+  return paths;
 }
-console.log(getPaths([7, 7]));
+
+function compareArrays(arr1, arr2) {
+  return JSON.stringify(arr1) == JSON.stringify(arr2);
+}
+
+console.log(knightMoves([0, 0], [7, 7]));
+export { knightMoves };
