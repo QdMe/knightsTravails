@@ -1,13 +1,20 @@
 function knightMoves(start, end) {
+  if (typeof start !== "object" || start.length < 2 || start.length > 2)
+    throw new Error("Start square value must be a two itemed array of numbers");
+  if (start[0] < 0 || start[0] > 7 || start[1] < 0 || start[1] > 7)
+    throw new Error("Start square value is out of range");
+
   let allPaths = getPaths(start);
   let shortestPath = 1000;
   let paths = getCorrectPaths(allPaths, end);
-  // for each path
+  // find the shortest path length
   paths.forEach((path) => {
     if (path.length < shortestPath) {
       shortestPath = path.length;
     }
   });
+  // find the shortest path
+  if (compareArrays(paths, end)) return [paths];
   for (let i = 0; i < paths.length; i++) {
     if (paths[i].length == shortestPath) {
       return paths[i];
@@ -95,6 +102,8 @@ function getCorrectPaths(point, target) {
 function compareArrays(arr1, arr2) {
   return JSON.stringify(arr1) == JSON.stringify(arr2);
 }
-
-console.log(knightMoves([0, 0], [7, 7]));
+// let p = getPaths(1, 1);
+// let g = getCorrectPaths(p, [1, 1]);
+// console.log(g);
+// console.log(knightMoves(1, [1, 1]));
 export { knightMoves };
